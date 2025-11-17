@@ -1,0 +1,7 @@
+{
+  "name": "SpendSmart AI",
+  "description": "An AI-powered personal finance companion to help you analyze expenses, plan budgets, track savings goals, and build better money habits with the power of Gemini.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
