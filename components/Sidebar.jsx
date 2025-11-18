@@ -1,5 +1,4 @@
 import React from 'react';
-import type { Page } from '../types';
 import DashboardIcon from './icons/DashboardIcon';
 import ExpensesIcon from './icons/ExpensesIcon';
 import BudgetIcon from './icons/BudgetIcon';
@@ -9,14 +8,7 @@ import CoachIcon from './icons/CoachIcon';
 import SparklesIcon from './icons/SparklesIcon';
 import LogoutIcon from './icons/LogoutIcon';
 
-interface SidebarProps {
-  currentPage: Page;
-  setCurrentPage: (page: Page) => void;
-  userEmail: string;
-  onLogout: () => void;
-}
-
-const navItems: { page: Page; label: string; icon: React.FC<{className?: string}> }[] = [
+const navItems = [
   { page: 'dashboard', label: 'Dashboard', icon: DashboardIcon },
   { page: 'expenses', label: 'Expenses', icon: ExpensesIcon },
   { page: 'budget', label: 'Budget', icon: BudgetIcon },
@@ -25,7 +17,7 @@ const navItems: { page: Page; label: string; icon: React.FC<{className?: string}
   { page: 'coach', label: 'AI Coach', icon: CoachIcon },
 ];
 
-const Sidebar: React.FC<SidebarProps> = ({ currentPage, setCurrentPage, userEmail, onLogout }) => {
+const Sidebar = ({ currentPage, setCurrentPage, userEmail, onLogout }) => {
   return (
     <aside className="bg-gray-900 text-gray-200 w-64 p-4 flex-shrink-0 border-r border-gray-700 flex flex-col h-full">
       <div className="flex items-center mb-8 shrink-0">

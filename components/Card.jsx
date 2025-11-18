@@ -1,11 +1,6 @@
 import React from 'react';
 
-interface CardProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
-const Card: React.FC<CardProps> = ({ children, className = '' }) => {
+const Card = ({ children, className = '' }) => {
   return (
     <div className={`bg-gray-800 border border-gray-700 rounded-lg p-4 sm:p-6 flex flex-col ${className}`}>
       {children}

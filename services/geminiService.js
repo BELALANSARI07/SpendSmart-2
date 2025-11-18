@@ -1,14 +1,14 @@
-import { GoogleGenAI, GenerateContentResponse, GroundingChunk } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 
 const API_KEY = process.env.API_KEY;
 if (!API_KEY) {
   console.warn("API_KEY environment variable not set. Gemini API calls will fail.");
 }
 
-const ai = new GoogleGenAI({ apiKey: API_KEY! });
+const ai = new GoogleGenAI({ apiKey: API_KEY });
 
-const fileToGenerativePart = (file: File) => {
-  return new Promise<{ inlineData: { data: string; mimeType: string } }>((resolve, reject) => {
+const fileToGenerativePart = (file) => {
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onloadend = () => {
       if (typeof reader.result !== 'string') {
@@ -27,7 +27,7 @@ const fileToGenerativePart = (file: File) => {
   });
 };
 
-export const getFinancialCoachResponse = async (history: { role: 'user' | 'model', parts: { text: string }[] }[], newMessage: string): Promise<string> => {
+export const getFinancialCoachResponse = async (history, newMessage) => {
   try {
     const chat = ai.chats.create({
       model: 'gemini-2.5-flash',
@@ -36,7 +36,7 @@ export const getFinancialCoachResponse = async (history: { role: 'user' | 'model
         systemInstruction: 'You are SpendSmart AI, a friendly and helpful personal finance coach. Provide concise, actionable advice. Do not use markdown formatting.'
       }
     });
-    const response: GenerateContentResponse = await chat.sendMessage({ message: newMessage });
+    const response = await chat.sendMessage({ message: newMessage });
     return response.text;
   } catch (error) {
     console.error("Error getting financial coach response:", error);
@@ -44,14 +44,14 @@ export const getFinancialCoachResponse = async (history: { role: 'user' | 'model
   }
 };
 
-export const analyzeReceipt = async (imageFile: File): Promise<string> => {
+export const analyzeReceipt = async (imageFile) => {
   try {
     const imagePart = await fileToGenerativePart(imageFile);
     const textPart = {
       text: `Analyze this receipt and extract the merchant name, date, total amount, and a list of items with their prices. Present the result as a JSON object with keys: "merchant", "date", "total", and "items" (an array of objects with "name" and "price").`
     };
     
-    const response: GenerateContentResponse = await ai.models.generateContent({
+    const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: { parts: [imagePart, textPart] },
     });
@@ -72,7 +72,7 @@ export const analyzeReceipt = async (imageFile: File): Promise<string> => {
   }
 };
 
-export const getFinancialInsights = async (topic: string): Promise<{ text: string, sources: GroundingChunk[] }> => {
+export const getFinancialInsights = async (topic) => {
   try {
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
@@ -91,7 +91,7 @@ export const getFinancialInsights = async (topic: string): Promise<{ text: strin
   }
 };
 
-export const getDeepFinancialAnalysis = async (userData: string): Promise<string> => {
+export const getDeepFinancialAnalysis = async (userData) => {
   try {
     const response = await ai.models.generateContent({
       model: "gemini-2.5-pro",

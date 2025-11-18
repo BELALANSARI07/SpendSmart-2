@@ -1,22 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Card from './Card';
-import type { UserData, Goal } from '../types';
 import PlusIcon from './icons/PlusIcon';
 import EditIcon from './icons/EditIcon';
 import TrashIcon from './icons/TrashIcon';
 
-interface GoalsProps {
-    userData: UserData;
-    onUserDataChange: (data: UserData) => void;
-    onDeleteGoal: (id: string) => void;
-}
-
-const GoalModal: React.FC<{
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (goal: Omit<Goal, 'id'> & { id?: string }) => void;
-  goal: Goal | null;
-}> = ({ isOpen, onClose, onSubmit, goal }) => {
+const GoalModal = ({ isOpen, onClose, onSubmit, goal }) => {
     const [formData, setFormData] = useState({ name: '', targetAmount: '', currentAmount: '' });
 
     useEffect(() => {
@@ -29,7 +17,7 @@ const GoalModal: React.FC<{
 
     if (!isOpen) return null;
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
         onSubmit({
             ...goal,
@@ -67,11 +55,11 @@ const GoalModal: React.FC<{
     );
 };
 
-const Goals: React.FC<GoalsProps> = ({ userData, onUserDataChange, onDeleteGoal }) => {
+const Goals = ({ userData, onUserDataChange, onDeleteGoal }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
+  const [editingGoal, setEditingGoal] = useState(null);
 
-  const handleOpenModal = (goal: Goal | null = null) => {
+  const handleOpenModal = (goal = null) => {
       setEditingGoal(goal);
       setIsModalOpen(true);
   };
@@ -81,12 +69,12 @@ const Goals: React.FC<GoalsProps> = ({ userData, onUserDataChange, onDeleteGoal 
       setEditingGoal(null);
   };
 
-  const handleSaveGoal = (goal: Omit<Goal, 'id'> & { id?: string }) => {
-      let updatedGoals: Goal[];
+  const handleSaveGoal = (goal) => {
+      let updatedGoals;
       if (goal.id) { // Update
           updatedGoals = userData.goals.map(g => g.id === goal.id ? { ...g, ...goal, id: g.id } : g);
       } else { // Add
-          const newGoal: Goal = { ...goal, id: `goal_${Date.now()}` };
+          const newGoal = { ...goal, id: `goal_${Date.now()}` };
           updatedGoals = [...userData.goals, newGoal];
       }
       onUserDataChange({ ...userData, goals: updatedGoals });

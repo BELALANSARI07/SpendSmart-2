@@ -1,18 +1,11 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import Card from './Card';
 import { analyzeReceipt } from '../services/geminiService';
-import type { UserData, Transaction } from '../types';
 import PlusIcon from './icons/PlusIcon';
 import EditIcon from './icons/EditIcon';
 import TrashIcon from './icons/TrashIcon';
 
-interface ExpensesProps {
-    userData: UserData;
-    onUserDataChange: (data: UserData) => void;
-    onDeleteTransaction: (id: string) => void;
-}
-
-const ReceiptAnalysisResult: React.FC<{ data: any }> = ({ data }) => (
+const ReceiptAnalysisResult = ({ data }) => (
   <Card className="mt-4 bg-gray-700/50">
     <h4 className="font-semibold text-lg mb-2 text-white">Receipt Analysis</h4>
     <p className="text-gray-300"><strong>Merchant:</strong> {data.merchant}</p>
@@ -20,7 +13,7 @@ const ReceiptAnalysisResult: React.FC<{ data: any }> = ({ data }) => (
     <p className="text-gray-300"><strong>Total:</strong> ${data.total}</p>
     <h5 className="font-semibold mt-2 text-white">Items:</h5>
     <ul className="list-disc list-inside text-sm text-gray-300">
-      {data.items?.map((item: any, index: number) => (
+      {data.items?.map((item, index) => (
         <li key={index}>{item.name} - ${item.price}</li>
       ))}
     </ul>
@@ -28,13 +21,13 @@ const ReceiptAnalysisResult: React.FC<{ data: any }> = ({ data }) => (
   </Card>
 );
 
-const TransactionModal: React.FC<{
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (transaction: Omit<Transaction, 'id'> & { id?: string }) => void;
-  transaction: Transaction | null;
-  categories: string[];
-}> = ({ isOpen, onClose, onSubmit, transaction, categories }) => {
+const TransactionModal = ({
+  isOpen,
+  onClose,
+  onSubmit,
+  transaction,
+  categories
+}) => {
     const [formData, setFormData] = useState({
         date: '',
         description: '',
@@ -62,14 +55,15 @@ const TransactionModal: React.FC<{
 
     if (!isOpen) return null;
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        onSubmit({
-            ...transaction,
-            ...formData,
-            amount: parseFloat(formData.amount) || 0,
-        });
-        onClose();
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      const base = transaction ? { ...transaction } : {};
+      onSubmit({
+        ...base,
+        ...formData,
+        amount: parseFloat(formData.amount) || 0,
+      });
+      onClose();
     };
     
     return (
@@ -106,15 +100,15 @@ const TransactionModal: React.FC<{
 };
 
 
-const Expenses: React.FC<ExpensesProps> = ({ userData, onUserDataChange, onDeleteTransaction }) => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+const Expenses = ({ userData, onUserDataChange, onDeleteTransaction }) => {
+  const [selectedFile, setSelectedFile] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysisResult, setAnalysisResult] = useState<any | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [analysisResult, setAnalysisResult] = useState(null);
+  const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [editingTransaction, setEditingTransaction] = useState(null);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (event) => {
     if (event.target.files && event.target.files[0]) {
       setSelectedFile(event.target.files[0]);
       setAnalysisResult(null);
@@ -134,13 +128,12 @@ const Expenses: React.FC<ExpensesProps> = ({ userData, onUserDataChange, onDelet
       const resultJson = JSON.parse(resultString);
       setAnalysisResult(resultJson);
 
-      // Auto-add the transaction
-      const newTransaction: Transaction = {
+      const newTransaction = {
         id: `tx_${Date.now()}`,
         date: resultJson.date || new Date().toISOString().split('T')[0],
         description: resultJson.merchant || 'Scanned Receipt',
         amount: parseFloat(resultJson.total) || 0,
-        category: 'Uncategorized' // Future improvement: guess category from merchant/items
+        category: 'Uncategorized'
       };
       
       if (newTransaction.amount > 0) {
@@ -156,7 +149,7 @@ const Expenses: React.FC<ExpensesProps> = ({ userData, onUserDataChange, onDelet
     }
   }, [selectedFile, userData, onUserDataChange]);
 
-  const handleOpenModal = (transaction: Transaction | null = null) => {
+  const handleOpenModal = (transaction = null) => {
     setEditingTransaction(transaction);
     setIsModalOpen(true);
   };
@@ -166,12 +159,12 @@ const Expenses: React.FC<ExpensesProps> = ({ userData, onUserDataChange, onDelet
       setEditingTransaction(null);
   };
 
-  const handleSaveTransaction = (transaction: Omit<Transaction, 'id'> & { id?: string }) => {
-      let updatedTransactions: Transaction[];
+  const handleSaveTransaction = (transaction) => {
+      let updatedTransactions;
       if (transaction.id) { // Update existing
           updatedTransactions = userData.transactions.map(t => t.id === transaction.id ? { ...t, ...transaction, id: t.id } : t);
       } else { // Add new
-          const newTransaction: Transaction = {
+          const newTransaction = {
               ...transaction,
               id: `tx_${Date.now()}`
           };

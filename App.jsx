@@ -8,11 +8,10 @@ import Insights from './components/Insights';
 import Coach from './components/Coach';
 import Login from './components/Login';
 import ConfirmationModal from './components/ConfirmationModal';
-import type { Page, UserData } from './types';
 import { getDeepFinancialAnalysis } from './services/geminiService';
 import { loadUserData, saveUserData } from './services/dataService';
 
-const DeepAnalysisModal: React.FC<{ onClose: () => void; analysis: string; isLoading: boolean }> = ({ onClose, analysis, isLoading }) => (
+const DeepAnalysisModal = ({ onClose, analysis, isLoading }) => (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
         <div className="bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-2xl max-h-[90vh] flex flex-col">
             <div className="flex justify-between items-center mb-4">
@@ -37,10 +36,10 @@ const DeepAnalysisModal: React.FC<{ onClose: () => void; analysis: string; isLoa
 );
 
 
-const App: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState<Page>('dashboard');
-  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
-  const [userData, setUserData] = useState<UserData | null>(null);
+const App = () => {
+  const [currentPage, setCurrentPage] = useState('dashboard');
+  const [currentUserEmail, setCurrentUserEmail] = useState(null);
+  const [userData, setUserData] = useState(null);
 
   const [showDeepAnalysis, setShowDeepAnalysis] = useState(false);
   const [deepAnalysisResult, setDeepAnalysisResult] = useState('');
@@ -61,7 +60,7 @@ const App: React.FC = () => {
     }
   }, []);
 
-  const handleLogin = useCallback((email: string) => {
+  const handleLogin = useCallback((email) => {
     const lowerCaseEmail = email.toLowerCase().trim();
     localStorage.setItem('spendsmart-user', lowerCaseEmail);
     setCurrentUserEmail(lowerCaseEmail);
@@ -74,8 +73,7 @@ const App: React.FC = () => {
     setUserData(null);
   }, []);
 
-  const updateUserData = (newUserData: UserData) => {
-    // Recalculate budget spent amounts based on transactions for consistency
+  const updateUserData = (newUserData) => {
     const updatedBudgets = newUserData.budgetCategories.map(cat => {
         const spent = newUserData.transactions
             .filter(t => t.category === cat.name)
@@ -96,10 +94,9 @@ const App: React.FC = () => {
     setIsAnalysisLoading(true);
     setDeepAnalysisResult('');
     
-    // Use a subset of real user data for analysis to keep it concise
     const analysisData = JSON.stringify({
         monthlyIncome: userData.monthlyIncome,
-        transactions: userData.transactions.slice(0, 20), // up to 20 most recent transactions
+        transactions: userData.transactions.slice(0, 20),
         budgets: userData.budgetCategories,
         goals: userData.goals,
     }, null, 2);
@@ -113,11 +110,11 @@ const App: React.FC = () => {
     setConfirmationModal({ ...confirmationModal, isOpen: false });
   };
 
-  const showConfirmation = (title: string, message: string, onConfirm: () => void) => {
+  const showConfirmation = (title, message, onConfirm) => {
       setConfirmationModal({ isOpen: true, title, message, onConfirm });
   };
 
-  const handleDeleteTransaction = (id: string) => {
+  const handleDeleteTransaction = (id) => {
       showConfirmation(
           'Delete Transaction?',
           'Are you sure you want to permanently delete this transaction?',
@@ -129,7 +126,7 @@ const App: React.FC = () => {
       );
   };
 
-  const handleDeleteCategory = (id: string) => {
+  const handleDeleteCategory = (id) => {
       if (!userData) return;
       const categoryToDelete = userData.budgetCategories.find(c => c.id === id);
       if (!categoryToDelete) return;
@@ -153,7 +150,7 @@ const App: React.FC = () => {
       );
   };
 
-  const handleDeleteGoal = (id: string) => {
+  const handleDeleteGoal = (id) => {
       showConfirmation(
           'Delete Savings Goal?',
           'Are you sure you want to delete this savings goal?',
@@ -168,7 +165,6 @@ const App: React.FC = () => {
 
   const renderPage = () => {
     if (!userData) {
-      // This should ideally not be shown as the main app is not rendered, but as a safeguard.
       return <div className="flex items-center justify-center h-full"><p>Loading user data...</p></div>;
     }
     switch (currentPage) {

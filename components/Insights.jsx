@@ -1,16 +1,15 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import Card from './Card';
 import { getFinancialInsights } from '../services/geminiService';
-import type { GroundingChunk } from '../types';
 
-const Insights: React.FC = () => {
+const Insights = () => {
     const [topic, setTopic] = useState('latest trends in personal budgeting');
     const [isLoading, setIsLoading] = useState(false);
-    const [insight, setInsight] = useState<string | null>(null);
-    const [sources, setSources] = useState<GroundingChunk[]>([]);
-    const [error, setError] = useState<string | null>(null);
+    const [insight, setInsight] = useState(null);
+    const [sources, setSources] = useState([]);
+    const [error, setError] = useState(null);
     
-    const fetchInsights = useCallback(async (currentTopic: string) => {
+    const fetchInsights = useCallback(async (currentTopic) => {
         if (!currentTopic) return;
         setIsLoading(true);
         setError(null);
@@ -30,10 +29,9 @@ const Insights: React.FC = () => {
     
     useEffect(() => {
         fetchInsights(topic);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const handleSearch = (e: React.FormEvent) => {
+    const handleSearch = (e) => {
         e.preventDefault();
         fetchInsights(topic);
     };

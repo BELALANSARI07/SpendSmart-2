@@ -1,7 +1,5 @@
-import type { UserData } from '../types';
-
 // Provides a default set of data for a new user to demonstrate features.
-const getInitialUserData = (email: string): UserData => ({
+const getInitialUserData = (email) => ({
   email,
   monthlyIncome: 5000,
   transactions: [
@@ -30,22 +28,19 @@ const getInitialUserData = (email: string): UserData => ({
  * @param email The user's email address.
  * @returns The user's data.
  */
-export const loadUserData = (email: string): UserData => {
+export const loadUserData = (email) => {
   try {
     const rawData = localStorage.getItem(`spendsmart-data-${email}`);
     if (rawData) {
       const parsedData = JSON.parse(rawData);
-      // Basic validation to ensure the loaded data has the expected structure
       if (parsedData.email && parsedData.transactions && parsedData.budgetCategories && parsedData.goals) {
-        // Add monthlyIncome with a fallback for backward compatibility
         parsedData.monthlyIncome = parsedData.monthlyIncome ?? 5000;
-        return parsedData as UserData;
+        return parsedData;
       }
     }
   } catch (error) {
     console.error("Failed to load or parse user data from localStorage", error);
   }
-  // Return initial data if loading fails or data is invalid
   return getInitialUserData(email);
 };
 
@@ -54,7 +49,7 @@ export const loadUserData = (email: string): UserData => {
  * @param email The user's email address.
  * @param data The user's data object to save.
  */
-export const saveUserData = (email: string, data: UserData): void => {
+export const saveUserData = (email, data) => {
   try {
     const stringifiedData = JSON.stringify(data);
     localStorage.setItem(`spendsmart-data-${email}`, stringifiedData);

@@ -2,24 +2,18 @@ import React, { useState } from 'react';
 import Card from './Card';
 import SparklesIcon from './icons/SparklesIcon';
 
-interface LoginProps {
-  onLogin: (email: string) => void;
-}
-
-const Login: React.FC<LoginProps> = ({ onLogin }) => {
+const Login = ({ onLogin }) => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setError('');
     if (email.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setIsLoading(true);
-      // Simulate a small delay for better UX, mimics network request
       setTimeout(() => {
         onLogin(email);
-        // No need to set loading to false as the component will unmount
       }, 500);
     } else {
         setError('Please enter a valid email address.');
